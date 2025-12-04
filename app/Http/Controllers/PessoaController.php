@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Paciente;
 use App\Models\Pessoa;
 use Illuminate\Http\Request;
 
-class PacienteController extends Controller
+class PessoaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,8 +14,8 @@ class PacienteController extends Controller
      */
     public function index()
     {
-        $pacientes = Paciente::with('pessoa')->get();
-        return view('pacientes.index', compact('pacientes'));
+        $pessoas = Pessoa::all();
+        return view('pessoas.index', compact('pessoas'));
     }
 
     /**
@@ -26,8 +25,7 @@ class PacienteController extends Controller
      */
     public function create()
     {
-        $pessoas = Pessoa::all();
-        return view('pacientes.create', compact('pessoas'));
+        return view('pessoas.create');
     }
 
     /**
@@ -39,13 +37,14 @@ class PacienteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pessoa_id' => 'required|exists:pessoas,id',
-            'numero_prontuario' => 'required|unique:pacientes',
+            'nome' => 'required',
+            'cpf' => 'required|unique:pessoas',
+            'email' => 'nullable|email',
         ]);
 
-        Paciente::create($request->all());
+        Pessoa::create($request->all());
 
-        return redirect()->route('pacientes.index')->with('success', 'Paciente cadastrado com sucesso!');
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa cadastrada com sucesso!');
     }
 
     /**
@@ -56,8 +55,8 @@ class PacienteController extends Controller
      */
     public function show($id)
     {
-        $paciente = Paciente::with('pessoa')->findOrFail($id);
-        return view('pacientes.show', compact('paciente'));
+        $pessoa = Pessoa::findOrFail($id);
+        return view('pessoas.show', compact('pessoa'));
     }
 
     /**
@@ -68,9 +67,8 @@ class PacienteController extends Controller
      */
     public function edit($id)
     {
-        $paciente = Paciente::findOrFail($id);
-        $pessoas = Pessoa::all();
-        return view('pacientes.edit', compact('paciente', 'pessoas'));
+        $pessoa = Pessoa::findOrFail($id);
+        return view('pessoas.edit', compact('pessoa'));
     }
 
     /**
@@ -82,16 +80,17 @@ class PacienteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $paciente = Paciente::findOrFail($id);
+        $pessoa = Pessoa::findOrFail($id);
 
         $request->validate([
-            'pessoa_id' => 'required|exists:pessoas,id',
-            'numero_prontuario' => "required|unique:pacientes,numero_prontuario,$id",
+            'nome' => 'required',
+            'cpf'  => "required|unique:pessoas,cpf,$id",
+            'email' => 'nullable|email',
         ]);
 
-        $paciente->update($request->all());
+        $pessoa->update($request->all());
 
-        return redirect()->route('pacientes.index')->with('success', 'Paciente atualizado com sucesso!');
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa atualizada com sucesso!');
     }
 
     /**
@@ -102,7 +101,7 @@ class PacienteController extends Controller
      */
     public function destroy($id)
     {
-        Paciente::destroy($id);
-        return redirect()->route('pacientes.index')->with('success', 'Paciente removido com sucesso!');
+        Pessoa::destroy($id);
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa removida com sucesso!');
     }
 }
